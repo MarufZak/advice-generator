@@ -1,53 +1,37 @@
-import Card from './components/Card/Card';
+import React from 'react';
+import Card from './components/Card';
 import styled from 'styled-components';
-import { useEffect, useMemo, useState } from 'react';
 import Subtitle from './components/Subtitle';
 import Error from './components/Error';
 const endpoint = 'https://api.adviceslip.com/advice';
 
 function App() {
-  const [data, setData] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState({ state: false, msg: '' });
+  const [data, setData] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState({ state: false, msg: '' });
 
-  // useMemo is used for learning purposes.
-  const fetchData = useMemo(
-    () => async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(endpoint);
-        const data = await response.json();
-        setData(data.slip);
-      } catch (error) {
-        setError({ state: true, msg: error });
-      }
+  const fetchData = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      setData(data.slip);
+    } catch (error) {
+      setError({ state: true, msg: error });
+    }
 
-      setIsLoading(false);
-    },
-    []
-  );
+    setIsLoading(false);
+  }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchData();
   }, []);
 
-  if (error.state) {
-    return (
-      <Wrapper>
-        <Error msg={error.msg} />
-      </Wrapper>
-    );
-  }
-
   return (
     <Wrapper>
-      <Card
-        isLoading={isLoading}
-        id={data.id}
-        advice={data.advice}
-        fetchData={fetchData}
-      />
-      {isLoading || <Subtitle />}
+      {error.state && <Error msg={error.msg} />}
+      {data && <Card isLoading={isLoading} data={data} fetchData={fetchData} />}
+      {!isLoading && <Subtitle />}
     </Wrapper>
   );
 }

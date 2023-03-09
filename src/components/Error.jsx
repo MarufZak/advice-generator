@@ -5,7 +5,7 @@ const Error = ({msg}) => {
 
   useEffect(()=>{
     console.log(msg);
-  },[])
+  },[msg])
 
   return (
     <Wrapper>
